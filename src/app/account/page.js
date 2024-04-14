@@ -7,17 +7,13 @@ import {
   useDynamicList,
 } from '@shopify/react-form';
 
-import UserInfoFields from './components/UserInfoFields';
+import { useState } from 'react';
+import { useAccount, useSetAccount } from '../contexts/AccountContext';
+
+import ContactFields from './components/ContactFields';
 import AddressFields from './components/AddressFields';
 import FormButtons from './components/FormButtons';
 import ToastMarkup from './components/ToastMarkup';
-import { useState } from 'react';
-
-const initialAccount = {
-  fullName: 'Ngô Quốc Cường',
-  address: [{ id: 0, specificAddress: '', cityAddress: '' }],
-  email: 'ngoquoccuong@gmail.com',
-};
 
 const logo = {
   topBarSource:
@@ -28,7 +24,9 @@ const logo = {
 };
 
 export default function AccountPage() {
-  const [account, setAccount] = useState(initialAccount);
+  const account = useAccount();
+  const setAccount = useSetAccount();
+
   const accountFullName = account.fullName;
   const accountEmail = account.email;
   const addressList = account.address;
@@ -57,7 +55,7 @@ export default function AccountPage() {
     },
     async onSubmit(form) {
       handleToggleToast();
-      setAccount({
+      const newAccount = {
         fullName: form.fullNameValue,
         email: form.emailValue,
         address: form.addressValues.fields.filter(
@@ -65,7 +63,16 @@ export default function AccountPage() {
             address.specificAddress.trim() !== '' ||
             address.cityAddress.trim() !== ''
         ),
+      };
+      setAccount(newAccount);
+      fetch('/api/account', {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(newAccount),
       });
+
       return { status: 'success' };
     },
   });
@@ -81,7 +88,7 @@ export default function AccountPage() {
             <Layout sectioned>
               <Layout.Section>
                 <Card>
-                  <UserInfoFields fields={fields} />
+                  <ContactFields fields={fields} />
                 </Card>
               </Layout.Section>
               <Layout.Section>

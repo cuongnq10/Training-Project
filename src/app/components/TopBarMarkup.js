@@ -1,7 +1,10 @@
 'use client';
-
 import { TopBar } from '@shopify/polaris';
-export default function TopBarMarkup({ accountFullName }) {
+import { useAccount } from '../contexts/AccountContext';
+
+export default function TopBarMarkup() {
+  const account = useAccount();
+  const accountFullName = account.fullName;
   const userMenuMarkup = (
     <TopBar.UserMenu
       name={accountFullName.split(' ')[0]}
